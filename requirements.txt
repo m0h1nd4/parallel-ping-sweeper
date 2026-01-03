@@ -1,5 +1,24 @@
-# This project uses only Python standard library modules.
-# No external dependencies required.
-
-# Python version requirement:
-# Python >= 3.13
+# Parallel Ping Sweeper - Requirements
+# =====================================
+#
+# This project uses ONLY Python standard libraries.
+# No external dependencies are required!
+#
+# Dieses Projekt verwendet AUSSCHLIESSLICH Python-Standardbibliotheken.
+# Keine externen Abhängigkeiten erforderlich!
+#
+# Required Python version / Benötigte Python-Version: >= 3.7
+#
+# Standard libraries used / Verwendete Standardbibliotheken:
+# - asyncio
+# - argparse
+# - csv
+# - dataclasses
+# - datetime
+# - ipaddress
+# - json
+# - pathlib
+# - platform
+# - shutil
+# - sys
+# - typing
