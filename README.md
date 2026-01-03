@@ -1,97 +1,221 @@
 # Parallel Ping Sweeper
 
-A lightweight, cross-platform Python tool for fast ICMP-based network discovery using parallel ping requests.
+[🇩🇪 Deutsch](#deutsch) | [🇬🇧 English](#english)
 
 ---
 
-## 🇩🇪 Beschreibung (Deutsch)
+## Deutsch
 
-**Parallel Ping Sweeper** ist ein plattformübergreifendes Python-Tool zur schnellen Erkennung erreichbarer Geräte in einem IPv4-Netzwerk.  
-Es führt einen sogenannten *Ping Sweep* durch, indem alle Hosts eines Subnetzes parallel per ICMP angepingt werden.
+### Beschreibung
 
-Das Tool eignet sich besonders für:
-- Netzwerkübersichten
-- Lab- und Testumgebungen
-- Monitoring-Vorbereitungen
-- autorisierte Security-Tests
+Ein asynchroner, plattformübergreifender ICMP-Ping-Sweeper für IPv4- und IPv6-Netzwerke. Das Tool ermöglicht das schnelle Scannen von Netzwerken mit konfigurierbarer Parallelität und unterstützt verschiedene Ausgabeformate.
 
-Es verwendet ausschließlich die Python-Standardbibliothek.
+### Features
 
----
+- **Asynchrone Ausführung**: Hohe Performance durch `asyncio`-basierte Parallelverarbeitung
+- **Cross-Platform**: Unterstützt Windows, Linux und macOS
+- **IPv4 & IPv6**: Volle Unterstützung beider Protokolle
+- **Flexible Ausgabe**: Export als CSV oder JSON
+- **Konfigurierbar**: Timeout, Parallelität und Ping-Count anpassbar
 
-## 🇬🇧 Description (English)
+### Voraussetzungen
 
-**Parallel Ping Sweeper** is a cross-platform Python utility for fast IPv4 network discovery using parallel ICMP ping requests.
+- Python 3.7 oder höher
+- Systemweiter `ping`-Befehl (auf den meisten Systemen vorinstalliert)
+- Für IPv6 unter Linux/macOS: `ping` mit `-6` Option oder `ping6`
 
-It performs a classic *ping sweep* by scanning all hosts in a given subnet concurrently and listing reachable devices.
+### Installation
 
-Typical use cases include:
-- Network inventory
-- Lab and test environments
-- Monitoring preparation
-- Authorized security assessments
+```bash
+# Repository klonen oder Datei herunterladen
+git clone <repository-url>
+cd parallel-ping-sweeper
 
-No external dependencies required.
+# Keine zusätzlichen Abhängigkeiten erforderlich!
+# Das Script verwendet nur Python-Standardbibliotheken.
+```
 
----
+### Verwendung
 
-## 🚀 Features
+```bash
+# Einfacher Scan eines /24 Netzwerks
+python parallel_ping_sweeper.py 192.168.1.0/24
 
-- Parallelized ping scanning (ThreadPoolExecutor)
-- Cross-platform (Windows, Linux, macOS)
-- Automatic OS-specific ping handling
-- IPv4 subnet support (CIDR notation)
-- No external Python dependencies
-- Clean and minimal output
+# Mit höherer Parallelität und längerem Timeout
+python parallel_ping_sweeper.py 192.168.1.0/24 -c 500 -t 2.0
 
----
+# Nur erreichbare Hosts anzeigen
+python parallel_ping_sweeper.py 192.168.1.0/24 --only-online
 
-## 🧩 How It Works
+# Ergebnisse als JSON exportieren
+python parallel_ping_sweeper.py 192.168.1.0/24 --json ergebnis.json
 
-1. Parses an IPv4 network (e.g. `192.168.1.0/24`)
-2. Enumerates all usable host IPs
-3. Sends ICMP echo requests in parallel
-4. Collects reachable hosts
-5. Outputs a list of online devices
+# Ergebnisse als CSV exportieren
+python parallel_ping_sweeper.py 192.168.1.0/24 --csv ergebnis.csv
 
----
+# IPv6 Netzwerk scannen
+python parallel_ping_sweeper.py 2001:db8::/120 --only-online
 
-## 📦 Requirements
+# Stiller Modus (nur Export, keine Konsolenausgabe)
+python parallel_ping_sweeper.py 192.168.1.0/24 --json out.json --quiet
+```
 
-- Python 3.8+
-- ICMP allowed (firewall permissions required)
+### Kommandozeilenoptionen
 
----
+| Option | Beschreibung | Standard |
+|--------|--------------|----------|
+| `network` | Zielnetzwerk in CIDR-Notation | (erforderlich) |
+| `-c, --concurrency` | Anzahl paralleler Ping-Tasks | 200 |
+| `-t, --timeout` | Timeout pro Host in Sekunden | 1.0 |
+| `--count` | Anzahl der Ping-Anfragen pro Host | 1 |
+| `--only-online` | Nur erreichbare Hosts ausgeben | false |
+| `--json PATH` | Ergebnisse als JSON speichern | - |
+| `--csv PATH` | Ergebnisse als CSV speichern | - |
+| `--quiet` | Konsolenausgabe unterdrücken | false |
 
-## ▶️ Usage
+### Beispielausgabe
 
-
-python scan.py
-Edit the network in the script:
-Code kopieren
-Python
-network = "192.168.1.0/24"
-🖥 Example Output
-Code kopieren
-
-Online Geräte:
+**Konsole:**
+```
+Network: 192.168.1.0/24
+Online hosts: 5
 192.168.1.1
 192.168.1.10
-192.168.1.25
+192.168.1.20
+192.168.1.100
+192.168.1.254
+```
 
-⚠️ Notes & Limitations
-ICMP may be blocked by firewalls
-No stealth scanning (explicit ping)
-IPv4 only
-Requires appropriate permissions
-Use only in networks you are authorized to scan
+**JSON:**
+```json
+{
+  "meta": {
+    "generated_at": "2025-01-03T12:00:00+00:00",
+    "network": "192.168.1.0/24",
+    "timeout_s": 1.0,
+    "concurrency": 200
+  },
+  "results": [
+    {"ip": "192.168.1.1", "online": true, "rtt_ms": null, "error": null},
+    {"ip": "192.168.1.2", "online": false, "rtt_ms": null, "error": "timeout"}
+  ]
+}
+```
 
-🔒 Legal Notice
-This tool is intended for educational, administrative, and authorized security testing purposes only.
-Unauthorized scanning of networks may be illegal in your jurisdiction.
+### Hinweise
 
-📄 License
-MIT License
+- Auf manchen Systemen sind Root-/Administrator-Rechte für ICMP-Pings erforderlich
+- Bei sehr großen Netzwerken (z.B. /16) sollte die Parallelität angepasst werden
+- Das RTT-Parsing ist derzeit nicht implementiert (Feld bleibt `null`)
 
-👤 Author
-Developed by h4nd50m3j4ck
+---
+
+## English
+
+### Description
+
+An asynchronous, cross-platform ICMP ping sweeper for IPv4 and IPv6 networks. This tool enables fast network scanning with configurable concurrency and supports various output formats.
+
+### Features
+
+- **Asynchronous Execution**: High performance through `asyncio`-based parallel processing
+- **Cross-Platform**: Supports Windows, Linux, and macOS
+- **IPv4 & IPv6**: Full support for both protocols
+- **Flexible Output**: Export as CSV or JSON
+- **Configurable**: Adjustable timeout, concurrency, and ping count
+
+### Requirements
+
+- Python 3.7 or higher
+- System-wide `ping` command (pre-installed on most systems)
+- For IPv6 on Linux/macOS: `ping` with `-6` option or `ping6`
+
+### Installation
+
+```bash
+# Clone repository or download file
+git clone <repository-url>
+cd parallel-ping-sweeper
+
+# No additional dependencies required!
+# The script uses only Python standard libraries.
+```
+
+### Usage
+
+```bash
+# Simple scan of a /24 network
+python parallel_ping_sweeper.py 192.168.1.0/24
+
+# With higher concurrency and longer timeout
+python parallel_ping_sweeper.py 192.168.1.0/24 -c 500 -t 2.0
+
+# Show only reachable hosts
+python parallel_ping_sweeper.py 192.168.1.0/24 --only-online
+
+# Export results as JSON
+python parallel_ping_sweeper.py 192.168.1.0/24 --json results.json
+
+# Export results as CSV
+python parallel_ping_sweeper.py 192.168.1.0/24 --csv results.csv
+
+# Scan IPv6 network
+python parallel_ping_sweeper.py 2001:db8::/120 --only-online
+
+# Quiet mode (export only, no console output)
+python parallel_ping_sweeper.py 192.168.1.0/24 --json out.json --quiet
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `network` | Target network in CIDR notation | (required) |
+| `-c, --concurrency` | Number of concurrent ping tasks | 200 |
+| `-t, --timeout` | Timeout per host in seconds | 1.0 |
+| `--count` | Number of ping requests per host | 1 |
+| `--only-online` | Output only reachable hosts | false |
+| `--json PATH` | Save results as JSON | - |
+| `--csv PATH` | Save results as CSV | - |
+| `--quiet` | Suppress console output | false |
+
+### Example Output
+
+**Console:**
+```
+Network: 192.168.1.0/24
+Online hosts: 5
+192.168.1.1
+192.168.1.10
+192.168.1.20
+192.168.1.100
+192.168.1.254
+```
+
+**JSON:**
+```json
+{
+  "meta": {
+    "generated_at": "2025-01-03T12:00:00+00:00",
+    "network": "192.168.1.0/24",
+    "timeout_s": 1.0,
+    "concurrency": 200
+  },
+  "results": [
+    {"ip": "192.168.1.1", "online": true, "rtt_ms": null, "error": null},
+    {"ip": "192.168.1.2", "online": false, "rtt_ms": null, "error": "timeout"}
+  ]
+}
+```
+
+### Notes
+
+- Root/administrator privileges may be required for ICMP pings on some systems
+- For very large networks (e.g., /16), concurrency should be adjusted accordingly
+- RTT parsing is currently not implemented (field remains `null`)
+
+---
+
+## License
+
+MIT License - Feel free to use and modify.
