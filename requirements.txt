@@ -1,0 +1,5 @@
+# This project uses only Python standard library modules.
+# No external dependencies required.
+
+# Python version requirement:
+# Python >= 3.13
